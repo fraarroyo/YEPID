@@ -21,8 +21,8 @@ app.secret_key = os.urandom(24)  # Change this to a secure random key in product
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')  # Your email
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')  # Your email password or app password
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', 'ciscoonlinecourse@gmail.com')  # Your email
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'jpje mnxd tfzq qryv')  # Your email password or app password
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER', app.config['MAIL_USERNAME'])
 
 mail = Mail(app)
@@ -1084,6 +1084,47 @@ def view_user_qr(user_id):
         flash('QR code could not be generated.', 'error')
         return redirect(url_for('registered_persons'))
 
+@app.route('/users/<user_id>/delete', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    """Delete a registered user"""
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    # Check if user exists
+    cursor.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
+    user_row = cursor.fetchone()
+    if not user_row:
+        conn.close()
+        flash('User not found.', 'error')
+        return redirect(url_for('registered_persons'))
+    
+    user = dict(user_row)
+    
+    # Delete attendance records for this user
+    cursor.execute('DELETE FROM attendance WHERE user_id = ?', (user_id,))
+    
+    # Delete notifications for this user
+    cursor.execute('DELETE FROM notifications WHERE user_id = ?', (user_id,))
+    
+    # Delete user
+    cursor.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+    
+    conn.commit()
+    conn.close()
+    
+    # Delete QR code file if it exists
+    qr_filename = f"{user_id}.png"
+    qr_filepath = os.path.join(QR_STORAGE_DIR, qr_filename)
+    if os.path.exists(qr_filepath):
+        try:
+            os.remove(qr_filepath)
+        except Exception as e:
+            print(f"Error deleting QR code file: {e}")
+    
+    flash(f'User "{user.get("name", "Unknown")}" deleted successfully!', 'success')
+    return redirect(url_for('registered_persons'))
+
 @app.route('/events', methods=['GET', 'POST'])
 @login_required
 def events():
@@ -1699,7 +1740,7 @@ def bulk_messaging():
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <h2 style="color: #002e6a;">{subject}</h2>
             <div style="white-space: pre-wrap;">{message}</div>
-            <p style="margin-top: 2rem;">Best regards,<br>SAN AGUSTIN YEP ID System</p>
+            <p style="margin-top: 2rem;">Best regards,<br>SK SAN AGUSTIN</p>
         </body>
         </html>
         """

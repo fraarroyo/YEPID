@@ -56,6 +56,11 @@
                         <a href="{{ url_for('generate_user_qr', user_id=user.user_id) }}" class="btn btn-sm btn-secondary" title="Download QR Code">
                             📥 Download
                         </a>
+                        <form method="POST" action="{{ url_for('delete_user', user_id=user.user_id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete {{ user.name }}? This will also delete all attendance records for this user. This action cannot be undone.');">
+                            <button type="submit" class="btn btn-sm btn-danger" title="Delete User">
+                                🗑️ Delete
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
