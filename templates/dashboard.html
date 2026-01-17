@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Welcome, {{ session.username }}!</h2>
+    <p class="subtitle">Manage your QR codes and system from here</p>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-content">
+                <h3>{{ stats.total_users }}</h3>
+                <p>Total Registrations</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-content">
+                <h3>{{ stats.active_events }}</h3>
+                <p>Active Events</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-content">
+                <h3>{{ stats.total_attendance }}</h3>
+                <p>Total Attendance</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-content">
+                <h3>{{ stats.total_points }}</h3>
+                <p>Total Points Distributed</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-grid">
+        <div class="feature-card">
+            <div class="card-icon">👥</div>
+            <h3>Registered Persons</h3>
+            <p>View all persons registered in the system</p>
+            <a href="{{ url_for('registered_persons') }}" class="btn btn-primary">View All</a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="card-icon">📅</div>
+            <h3>Events Management</h3>
+            <p>Create and manage events, track attendance</p>
+            <a href="{{ url_for('events') }}" class="btn btn-primary">Manage Events</a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="card-icon">🏆</div>
+            <h3>Points Leaderboard</h3>
+            <p>View participants ranked by total points earned</p>
+            <a href="{{ url_for('leaderboard') }}" class="btn btn-primary">View Leaderboard</a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="card-icon">📊</div>
+            <h3>Analytics & Reports</h3>
+            <p>View system analytics and generate reports</p>
+            <a href="{{ url_for('analytics') }}" class="btn btn-primary">View Analytics</a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="card-icon">🔍</div>
+            <h3>Advanced Search</h3>
+            <p>Search across users, events, and attendance</p>
+            <a href="{{ url_for('advanced_search') }}" class="btn btn-primary">Search</a>
+        </div>
+        
+        <div class="feature-card">
+            <div class="card-icon">📧</div>
+            <h3>Bulk Messaging</h3>
+            <p>Send announcements to users</p>
+            <a href="{{ url_for('bulk_messaging') }}" class="btn btn-primary">Send Messages</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

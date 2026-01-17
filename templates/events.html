@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Events Management - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Events Management</h2>
+    <p>Create and manage events, track participant attendance</p>
+    <button onclick="toggleEventForm()" class="btn btn-primary" id="addEventBtn" style="margin-top: 1rem;">
+        ➕ Add New Event
+    </button>
+</div>
+
+<div class="card" id="eventFormCard" style="display: none;">
+    <h3>Create New Event</h3>
+    <form method="POST" action="{{ url_for('events') }}" class="event-form">
+        <div class="form-group">
+            <label for="event_name">Event Name *</label>
+            <input type="text" id="event_name" name="event_name" required placeholder="e.g., Annual Conference">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="event_date">Event Date *</label>
+                <input type="date" id="event_date" name="event_date" required>
+            </div>
+            <div class="form-group">
+                <label for="event_time">Event Time *</label>
+                <input type="time" id="event_time" name="event_time" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="event_points">Points *</label>
+                <input type="number" id="event_points" name="event_points" required min="0" step="1" placeholder="e.g., 10" value="0">
+                <small>Points participants will earn</small>
+            </div>
+            <div class="form-group">
+                <label for="event_capacity">Capacity (Optional)</label>
+                <input type="number" id="event_capacity" name="event_capacity" min="1" placeholder="e.g., 100">
+                <small>Maximum participants</small>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="event_category">Category (Optional)</label>
+            <select id="event_category" name="event_category">
+                <option value="">Select Category</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Activity">Activity</option>
+                <option value="Training">Training</option>
+                <option value="Conference">Conference</option>
+                <option value="Seminar">Seminar</option>
+                <option value="Social">Social</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="event_description">Description (Optional)</label>
+            <textarea id="event_description" name="event_description" rows="3" placeholder="Event description..."></textarea>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary">Create Event</button>
+            <button type="button" onclick="toggleEventForm()" class="btn btn-secondary">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h3 style="margin: 0;">All Events</h3>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+            <div class="form-group" style="margin: 0; min-width: 200px;">
+                <input type="text" id="searchInput" placeholder="🔍 Search by name..." style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px; font-size: 1rem;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <select id="yearFilter" style="padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px; font-size: 1rem; cursor: pointer; background-color: white;">
+                    <option value="">All Years</option>
+                    {% set years = events | map(attribute='event_year') | select('string') | list | unique | sort(reverse=true) %}
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    {% if events %}
+    <div id="eventsTableContainer">
+        <div class="table-container">
+            <table class="persons-table" id="eventsTable">
+                <thead>
+                    <tr>
+                    <th>#</th>
+                    <th>Event Name</th>
+                    <th>Category</th>
+                    <th>Year</th>
+                    <th>Points</th>
+                    <th>Capacity</th>
+                    <th>Schedule</th>
+                    <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="eventsTableBody">
+                    {% for event in events %}
+                    <tr data-name="{{ event.event_name.lower() }}" data-year="{{ event.event_year }}">
+                        <td class="row-index">{{ loop.index }}</td>
+                        <td><strong>{{ event.event_name }}</strong></td>
+                        <td>{{ event.event_category if event.event_category else 'N/A' }}</td>
+                        <td>{{ event.event_year }}</td>
+                        <td><strong style="color: var(--secondary-color);">{{ event.event_points if event.event_points else 0 }}</strong></td>
+                        <td>
+                            {% if event.event_capacity %}
+                                {{ event.event_capacity }}
+                            {% else %}
+                                Unlimited
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if event.event_date %}
+                                {{ event.event_date }}
+                                {% if event.event_time %}
+                                    <br><small style="color: #666;">{{ event.event_time }}</small>
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('event_detail', event_id=event.event_id) }}" class="btn btn-sm btn-primary" title="View Event">
+                                👁️ View
+                            </a>
+                            <form method="POST" action="{{ url_for('delete_event', event_id=event.event_id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this event? This will also delete all attendance records for this event.');">
+                                <button type="submit" class="btn btn-sm btn-danger" title="Delete Event">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div id="noResults" style="display: none; text-align: center; padding: 2rem; color: #666;">
+            <p>No events found matching your search criteria.</p>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No events have been created yet. Create your first event above!</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function toggleEventForm() {
+    const formCard = document.getElementById('eventFormCard');
+    const addBtn = document.getElementById('addEventBtn');
+    
+    if (formCard.style.display === 'none') {
+        formCard.style.display = 'block';
+        addBtn.style.display = 'none';
+    } else {
+        formCard.style.display = 'none';
+        addBtn.style.display = 'inline-block';
+        // Reset form
+        document.querySelector('.event-form').reset();
+    }
+}
+
+function filterEvents() {
+    const searchInput = document.getElementById('searchInput');
+    const yearFilter = document.getElementById('yearFilter');
+    const tableBody = document.getElementById('eventsTableBody');
+    const noResults = document.getElementById('noResults');
+    const tableContainer = document.querySelector('.table-container');
+    
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedYear = yearFilter.value;
+    
+    const rows = tableBody.querySelectorAll('tr');
+    let visibleCount = 0;
+    let rowIndex = 1;
+    
+    rows.forEach(row => {
+        const eventName = row.getAttribute('data-name') || '';
+        const eventYear = row.getAttribute('data-year') || '';
+        
+        const matchesSearch = !searchTerm || eventName.includes(searchTerm);
+        const matchesYear = !selectedYear || eventYear === selectedYear;
+        
+        if (matchesSearch && matchesYear) {
+            row.style.display = '';
+            // Update row index
+            const indexCell = row.querySelector('.row-index');
+            if (indexCell) {
+                indexCell.textContent = rowIndex++;
+            }
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Show/hide no results message
+    if (visibleCount === 0 && rows.length > 0) {
+        noResults.style.display = 'block';
+        tableContainer.style.display = 'none';
+    } else {
+        noResults.style.display = 'none';
+        tableContainer.style.display = 'block';
+    }
+}
+
+// Add event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const yearFilter = document.getElementById('yearFilter');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', filterEvents);
+    }
+    
+    if (yearFilter) {
+        yearFilter.addEventListener('change', filterEvents);
+    }
+});
+</script>
+{% endblock %}
+

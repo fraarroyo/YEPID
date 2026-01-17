@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Informed Consent - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="consent-container">
+    <div class="consent-card">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='yepid.png') }}" alt="SAN AGUSTIN YEP ID Logo" class="card-logo">
+        </div>
+        <h2>INFORMED CONSENT</h2>
+        
+        <div class="consent-content">
+            <div class="consent-section">
+                <h3>Purpose of the Study</h3>
+                <p>The profiling aims to gather the information and data of the Katipunan ng Kabataan members. The information that will be gathered in the KK Profiling will be stored to the upcoming SK Portal and will only be used for the purpose of database management handled by the National Youth Commission.</p>
+            </div>
+            
+            <div class="consent-section">
+                <h3>Terms and Duration of Participation</h3>
+                <p>You are asked to join the study as a participant in the KK Profiling. The conduct of the profiling will take 2 to 3 hours per Barangay; the data will serve as an updated national database of the Katipunan ng Kabataan members in the Philippines.</p>
+            </div>
+            
+            <div class="consent-section">
+                <h3>Risks/Confidentiality</h3>
+                <p>Your participation in the study will be treated with utmost confidentiality. Any information collected from you will be used in the database management. Also, your safety is our primary concern. The profiling ensures that there will be no risk to encounter during the process of data collection.</p>
+            </div>
+            
+            <div class="consent-section">
+                <h3>Compensation</h3>
+                <p>The activity is in accordance with RA No. 10742 and the policy/guidelines of the Department of Interior and Local Government and the National Youth Commission. There will be no monetary remuneration other than our sincerest gratitude for your time and effort. Your participation will be highly appreciated.</p>
+            </div>
+            
+            <div class="consent-statement">
+                <p><strong>After reading the letter above, I, as a bona fide resident of Barangay San Agustin, am willing to participate in the conduct of the study and give my consent to use the information I provided herein for the purpose of data collection of the SK and the data management handled by National Youth Commission as prescribed in the Republic Act 10742 and in accordance to Republic Act 10173.</strong></p>
+            </div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('consent') }}" class="consent-form">
+            <div class="consent-options">
+                <label class="consent-option">
+                    <input type="radio" name="consent" value="agree" required>
+                    <span>I agree</span>
+                </label>
+                <label class="consent-option">
+                    <input type="radio" name="consent" value="disagree" required>
+                    <span>I disagree</span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+        </form>
+    </div>
+</div>
+
+<style>
+.consent-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.consent-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2.5rem;
+}
+
+.consent-card h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.consent-content {
+    margin-bottom: 2rem;
+    line-height: 1.8;
+}
+
+.consent-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.consent-section:last-of-type {
+    border-bottom: none;
+}
+
+.consent-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-size: 1.2rem;
+}
+
+.consent-section p {
+    color: #333;
+    text-align: justify;
+    margin: 0;
+}
+
+.consent-statement {
+    background: #f5f5f5;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.consent-statement p {
+    margin: 0;
+    color: #333;
+    text-align: justify;
+    line-height: 1.8;
+}
+
+.consent-form {
+    margin-top: 2rem;
+}
+
+.consent-options {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.consent-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding: 1rem 2rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.3s;
+    background: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.consent-option:hover {
+    border-color: var(--primary-color);
+    background: #f8f9fa;
+}
+
+.consent-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.consent-option input[type="radio"]:checked + span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.consent-option:has(input[type="radio"]:checked) {
+    border-color: var(--primary-color);
+    background: #e8f4f8;
+}
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-logo {
+    max-width: 120px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .consent-card {
+        padding: 1.5rem;
+    }
+    
+    .consent-options {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .consent-option {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}
+

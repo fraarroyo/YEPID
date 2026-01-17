@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Generate QR Code - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Generate QR Code</h2>
+    <p>Enter any text, URL, or data to generate a QR code</p>
+</div>
+
+<div class="card">
+    <form method="POST" action="{{ url_for('generate_qr') }}" class="qr-form">
+        <div class="form-group">
+            <label for="qr_data">Enter Data for QR Code</label>
+            <textarea id="qr_data" name="qr_data" rows="4" placeholder="Enter text, URL, or any data here..." required>{{ qr_data or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Generate QR Code</button>
+    </form>
+</div>
+
+{% if qr_image %}
+<div class="card qr-result">
+    <h3>Generated QR Code</h3>
+    <div class="qr-image-container">
+        <img src="{{ qr_image }}" alt="Generated QR Code" class="qr-image">
+    </div>
+    {% if qr_data %}
+    <div class="qr-actions">
+        <a href="{{ url_for('download_qr', data=qr_data) }}" class="btn btn-secondary">Download QR Code</a>
+    </div>
+    <div class="qr-data-display">
+        <p><strong>Data:</strong> <code>{{ qr_data }}</code></p>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+

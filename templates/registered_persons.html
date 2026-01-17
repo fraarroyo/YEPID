@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Persons - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Registered Persons</h2>
+    <p>View all persons registered in the system</p>
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
+        <div class="stats-summary" style="padding: 0.5rem 1rem; background: var(--light-color); border-radius: 5px; display: inline-block;">
+            <p style="margin: 0;"><strong>Total Registered: {{ users|length }}</strong></p>
+        </div>
+        {% if users %}
+        <div class="form-group" style="margin: 0; flex: 1; min-width: 250px; max-width: 400px;">
+            <input type="text" id="searchInput" placeholder="🔍 Search by name or ID..." style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px; font-size: 1rem;">
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if users %}
+<div id="usersTableContainer">
+    <div class="table-container">
+        <table class="persons-table" id="usersTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>QR Code</th>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Zone</th>
+                    <th>Registration Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                {% for user in users %}
+                <tr data-name="{{ user.name.lower() }}" data-id="{{ (user.id if user.id else '').lower() }}">
+                    <td class="row-index">{{ loop.index }}</td>
+                    <td>
+                        <img src="{{ url_for('view_user_qr', user_id=user.user_id) }}" alt="QR Code" style="width: 60px; height: 60px; object-fit: contain;">
+                    </td>
+                    <td><strong>{{ user.name }}</strong></td>
+                    <td>{{ user.id if user.id else 'N/A' }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.zone if user.zone else 'N/A' }}</td>
+                    <td>
+                        {% set reg_date = user.registration_date.split('T')[0] if 'T' in user.registration_date else user.registration_date %}
+                        {{ reg_date }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_user_qr', user_id=user.user_id) }}" class="btn btn-sm btn-primary" target="_blank" title="View QR Code">
+                            👁️ View
+                        </a>
+                        <a href="{{ url_for('generate_user_qr', user_id=user.user_id) }}" class="btn btn-sm btn-secondary" title="Download QR Code">
+                            📥 Download
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="noResults" style="display: none; text-align: center; padding: 2rem; color: #666;">
+    <p>No persons found matching your search criteria.</p>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <p>No persons have been registered yet.</p>
+        <a href="{{ url_for('register') }}" class="btn btn-primary">Go to Registration</a>
+    </div>
+</div>
+{% endif %}
+
+<script>
+function filterUsers() {
+    const searchInput = document.getElementById('searchInput');
+    const usersTable = document.getElementById('usersTable');
+    const usersTableBody = document.getElementById('usersTableBody');
+    const noResults = document.getElementById('noResults');
+    const usersTableContainer = document.getElementById('usersTableContainer');
+    
+    if (!searchInput || !usersTableBody) return;
+    
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const rows = usersTableBody.querySelectorAll('tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const userName = row.getAttribute('data-name') || '';
+        const userId = row.getAttribute('data-id') || '';
+        
+        const matchesSearch = !searchTerm || 
+            userName.includes(searchTerm) || 
+            userId.includes(searchTerm);
+        
+        if (matchesSearch) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // Show/hide no results message
+    if (visibleCount === 0 && rows.length > 0) {
+        noResults.style.display = 'block';
+        if (usersTableContainer) usersTableContainer.style.display = 'none';
+    } else {
+        noResults.style.display = 'none';
+        if (usersTableContainer) usersTableContainer.style.display = 'block';
+    }
+}
+
+// Add event listener
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterUsers);
+    }
+});
+</script>
+{% endblock %}

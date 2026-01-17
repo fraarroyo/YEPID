@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Attendance - {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Scan Attendance: {{ event.event_name }}</h2>
+    <p>Year: {{ event.event_year }}</p>
+    <a href="{{ url_for('event_detail', event_id=event.event_id) }}" class="btn btn-secondary">← Back to Event</a>
+</div>
+
+<div class="card">
+    <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+    <div id="scan-result" style="display: none; margin-top: 1rem;">
+        <div class="card scan-result" id="result-card">
+            <h3>Scan Result</h3>
+            <div class="scanned-data">
+                <p id="result-message"></p>
+                <div class="data-box" id="data-box" style="display: none;">
+                    <code id="scanned-data-content"></code>
+                </div>
+                <button onclick="resetScanner()" class="btn btn-primary" style="margin-top: 1rem;">Scan Another</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let html5QrcodeScanner = null;
+let isScanning = false;
+const eventId = '{{ event.event_id }}';
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log("QR Code scanned:", decodedText);
+    
+    // Stop scanning
+    if (html5QrcodeScanner && isScanning) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner.clear();
+            isScanning = false;
+        }).catch(err => {
+            console.error("Error stopping scanner:", err);
+        });
+    }
+    
+    // Hide reader
+    document.getElementById('reader').style.display = 'none';
+    document.getElementById('scan-result').style.display = 'block';
+    
+    // Process the scanned data
+    processAttendance(decodedText);
+}
+
+function onScanFailure(error) {
+    // Ignore scan errors - just keep scanning
+    // Uncomment for debugging:
+    // console.log("Scan error (ignored):", error);
+}
+
+function processAttendance(qrData) {
+    // Show loading state
+    document.getElementById('result-message').innerHTML = '<strong>Processing...</strong>';
+    document.getElementById('data-box').style.display = 'none';
+    
+    // Send to backend
+    fetch(`/api/scan/attendance/${eventId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ qr_data: qrData })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('result-card').style.backgroundColor = '#d4edda';
+            document.getElementById('result-card').style.borderColor = '#c3e6cb';
+            document.getElementById('result-message').innerHTML = 
+                `<strong style="color: #155724;">✓ ${data.message}</strong>`;
+            document.getElementById('data-box').style.display = 'none';
+        } else {
+            document.getElementById('result-card').style.backgroundColor = data.already_attended ? '#fff3cd' : '#f8d7da';
+            document.getElementById('result-card').style.borderColor = data.already_attended ? '#ffeaa7' : '#f5c6cb';
+            document.getElementById('result-message').innerHTML = 
+                `<strong style="color: ${data.already_attended ? '#856404' : '#721c24'};">${data.error}</strong>`;
+            document.getElementById('scanned-data-content').textContent = qrData;
+            document.getElementById('data-box').style.display = 'block';
+        }
+        
+        // Automatically restart scanner after showing result (2 seconds for success, 3 seconds for errors)
+        const delay = data.success ? 2000 : 3000;
+        setTimeout(() => {
+            document.getElementById('scan-result').style.display = 'none';
+            document.getElementById('reader').style.display = 'block';
+            document.getElementById('result-card').style.backgroundColor = '';
+            document.getElementById('result-card').style.borderColor = '';
+            startScanner();
+        }, delay);
+    })
+    .catch(error => {
+        document.getElementById('result-card').style.backgroundColor = '#f8d7da';
+        document.getElementById('result-card').style.borderColor = '#f5c6cb';
+        document.getElementById('result-message').innerHTML = 
+            `<strong style="color: #721c24;">Error: ${error.message}</strong>`;
+        document.getElementById('scanned-data-content').textContent = qrData;
+        document.getElementById('data-box').style.display = 'block';
+        
+        // Automatically restart scanner after showing error (3 seconds)
+        setTimeout(() => {
+            document.getElementById('scan-result').style.display = 'none';
+            document.getElementById('reader').style.display = 'block';
+            document.getElementById('result-card').style.backgroundColor = '';
+            document.getElementById('result-card').style.borderColor = '';
+            startScanner();
+        }, 3000);
+    });
+}
+
+function resetScanner() {
+    document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('reader').style.display = 'block';
+    document.getElementById('result-card').style.backgroundColor = '';
+    document.getElementById('result-card').style.borderColor = '';
+    startScanner();
+}
+
+async function startScanner() {
+    if (isScanning) {
+        return;
+    }
+    
+    try {
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        
+        // Try to get available cameras
+        const devices = await Html5Qrcode.getCameras();
+        console.log("Available cameras:", devices);
+        
+        let cameraId = null;
+        // Prefer back camera
+        for (let device of devices) {
+            if (device.label.toLowerCase().includes('back') || 
+                device.label.toLowerCase().includes('rear') ||
+                device.label.toLowerCase().includes('environment')) {
+                cameraId = device.id;
+                break;
+            }
+        }
+        // If no back camera found, use first available
+        if (!cameraId && devices.length > 0) {
+            cameraId = devices[0].id;
+        }
+        
+        const config = {
+            fps: 10,
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                // Use 80% of the smaller dimension
+                let minEdgePercentage = 0.8;
+                let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                return {
+                    width: qrboxSize,
+                    height: qrboxSize
+                };
+            },
+            aspectRatio: 1.0,
+            disableFlip: false
+        };
+        
+        if (cameraId) {
+            await html5QrcodeScanner.start(
+                cameraId,
+                config,
+                onScanSuccess,
+                onScanFailure
+            );
+        } else {
+            // Fallback to facingMode
+            await html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            );
+        }
+        
+        isScanning = true;
+        console.log("Scanner started successfully");
+    } catch (err) {
+        console.error("Unable to start scanning", err);
+        let errorMsg = "Unable to access camera. ";
+        if (err.name === 'NotAllowedError') {
+            errorMsg += "Please grant camera permissions and refresh the page.";
+        } else if (err.name === 'NotFoundError') {
+            errorMsg += "No camera found on this device.";
+        } else {
+            errorMsg += "Error: " + err.message;
+        }
+        alert(errorMsg);
+        document.getElementById('reader').innerHTML = 
+            '<div style="text-align: center; padding: 2rem; color: #721c24;">' +
+            '<p><strong>Camera Error</strong></p>' +
+            '<p>' + errorMsg + '</p>' +
+            '<button onclick="startScanner()" class="btn btn-primary">Retry</button>' +
+            '</div>';
+    }
+}
+
+// Start scanner when page loads
+window.addEventListener('load', () => {
+    setTimeout(startScanner, 500); // Small delay to ensure DOM is ready
+});
+</script>
+{% endblock %}

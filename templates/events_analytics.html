@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Event Analytics - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Event Analytics</h2>
+    <p>Event performance and attendance trends</p>
+    <a href="{{ url_for('analytics') }}" class="btn btn-secondary">← Back to Analytics</a>
+</div>
+
+<div class="card">
+    <h3>Event Performance</h3>
+    {% if analytics.events_data %}
+    <div class="table-container">
+        <table class="persons-table">
+            <thead>
+                <tr>
+                    <th>Event Name</th>
+                    <th>Date</th>
+                    <th>Points</th>
+                    <th>Capacity</th>
+                    <th>Attendance</th>
+                    <th>Attendance Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in analytics.events_data %}
+                <tr>
+                    <td><strong>{{ event.event_name }}</strong></td>
+                    <td>{{ event.event_date }}</td>
+                    <td><strong style="color: var(--secondary-color);">{{ event.event_points }}</strong></td>
+                    <td>{{ event.event_capacity if event.event_capacity else 'Unlimited' }}</td>
+                    <td><strong>{{ event.attendance_count }}</strong></td>
+                    <td>
+                        {% if event.event_capacity and event.event_capacity > 0 %}
+                            <strong style="color: {% if event.attendance_rate >= 80 %}green{% elif event.attendance_rate >= 50 %}orange{% else %}red{% endif %};">
+                                {{ event.attendance_rate }}%
+                            </strong>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No event data available.</p>
+    {% endif %}
+</div>
+
+<div class="card" style="margin-top: 2rem;">
+    <h3>Monthly Attendance Trends</h3>
+    {% if analytics.monthly_trends %}
+    <div class="table-container">
+        <table class="persons-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Attendance Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for month, count in analytics.monthly_trends.items() %}
+                <tr>
+                    <td><strong>{{ month }}</strong></td>
+                    <td><strong>{{ count }}</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No attendance trend data available.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

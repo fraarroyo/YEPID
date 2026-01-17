@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Demographics Report - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Demographics Report</h2>
+    <p>Detailed demographic breakdown of registered users</p>
+    <a href="{{ url_for('analytics') }}" class="btn btn-secondary">← Back to Analytics</a>
+</div>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Age Group Distribution</h3>
+        {% if demographics.age_groups %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Age Group</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_age = demographics.age_groups.values() | sum %}
+                    {% for age_group, count in demographics.age_groups.items() %}
+                    <tr>
+                        <td>{{ age_group }}</td>
+                        <td><strong>{{ count }}</strong></td>
+                        <td>{{ "%.1f"|format((count / total_age * 100) if total_age > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No age group data available.</p>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3>Zone Distribution</h3>
+        {% if demographics.zones %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Zone</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_zones = demographics.zones.values() | sum %}
+                    {% for zone, count in demographics.zones.items() %}
+                    <tr>
+                        <td>{{ zone }}</td>
+                        <td><strong>{{ count }}</strong></td>
+                        <td>{{ "%.1f"|format((count / total_zones * 100) if total_zones > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No zone data available.</p>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3>Classification Distribution</h3>
+        {% if demographics.classifications %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Classification</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_class = demographics.classifications.values() | sum %}
+                    {% for classification, count in demographics.classifications.items() %}
+                    <tr>
+                        <td>{{ classification }}</td>
+                        <td><strong>{{ count }}</strong></td>
+                        <td>{{ "%.1f"|format((count / total_class * 100) if total_class > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No classification data available.</p>
+        {% endif %}
+    </div>
+    
+    <div class="card">
+        <h3>Sex Distribution</h3>
+        {% if demographics.sex_breakdown %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Sex</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_sex = demographics.sex_breakdown.values() | sum %}
+                    {% for sex, count in demographics.sex_breakdown.items() %}
+                    <tr>
+                        <td>{{ sex }}</td>
+                        <td><strong>{{ count }}</strong></td>
+                        <td>{{ "%.1f"|format((count / total_sex * 100) if total_sex > 0 else 0) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No sex data available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+

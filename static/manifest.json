@@ -1,0 +1,23 @@
+{
+  "name": "SAN AGUSTIN YEP ID",
+  "short_name": "YEP ID",
+  "description": "QR code-based attendance and registration system",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#002e6a",
+  "theme_color": "#002e6a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/yepid.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/yepid.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

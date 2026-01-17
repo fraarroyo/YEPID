@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Points Leaderboard - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>🏆 Points Leaderboard</h2>
+    <p>Participants ranked by total points earned from attending events</p>
+    <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;">
+        <div class="form-group" style="margin: 0;">
+            <select id="yearFilter" onchange="filterByYear()" style="padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 5px; font-size: 1rem; cursor: pointer; background-color: white;">
+                <option value="">All Years</option>
+                {% for year in available_years %}
+                <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <a href="{{ url_for('events') }}" class="btn btn-secondary">← Back to Events</a>
+    </div>
+</div>
+
+<div class="card">
+    {% if leaderboard %}
+    <div class="table-container">
+        <table class="persons-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Total Points</th>
+                    <th>Events Attended</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for participant in leaderboard %}
+                <tr>
+                    <td>
+                        {% if loop.index == 1 %}
+                            🥇
+                        {% elif loop.index == 2 %}
+                            🥈
+                        {% elif loop.index == 3 %}
+                            🥉
+                        {% else %}
+                            #{{ loop.index }}
+                        {% endif %}
+                    </td>
+                    <td><strong>{{ participant.name }}</strong></td>
+                    <td>{{ participant.id }}</td>
+                    <td>{{ participant.email }}</td>
+                    <td><strong style="color: var(--secondary-color); font-size: 1.2rem;">{{ participant.total_points }}</strong> points</td>
+                    <td>{{ participant.events_attended }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="stats-summary" style="margin-top: 1.5rem;">
+        <p><strong>Total Participants: {{ leaderboard|length }}</strong></p>
+        {% if leaderboard %}
+        <p><strong>Highest Points: {{ leaderboard[0].total_points }} points</strong> ({{ leaderboard[0].name }})</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No attendance records found{% if selected_year %} for year {{ selected_year }}{% endif %}.</p>
+        <p>Participants will appear here once they attend events and earn points.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterByYear() {
+    const year = document.getElementById('yearFilter').value;
+    const url = new URL(window.location.href);
+    if (year) {
+        url.searchParams.set('year', year);
+    } else {
+        url.searchParams.delete('year');
+    }
+    window.location.href = url.toString();
+}
+</script>
+{% endblock %}
+

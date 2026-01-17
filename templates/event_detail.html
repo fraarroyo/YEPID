@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.event_name }} - Event Details{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{{ event.event_name }}</h2>
+    <p>
+        Year: {{ event.event_year }}
+        {% if event.event_date %}
+        | Scheduled: {{ event.event_date }}{% if event.event_time %} at {{ event.event_time }}{% endif %}
+        {% endif %}
+        | Manage attendance for this event
+    </p>
+    <a href="{{ url_for('events') }}" class="btn btn-secondary">← Back to Events</a>
+</div>
+
+<div class="card">
+    <h3>Event Information</h3>
+    <div class="event-info">
+        <p><strong>Event Name:</strong> {{ event.event_name }}</p>
+        <p><strong>Year:</strong> {{ event.event_year }}</p>
+        {% if event.event_date %}
+        <p><strong>Schedule:</strong> 
+            {{ event.event_date }}
+            {% if event.event_time %}
+                at {{ event.event_time }}
+            {% endif %}
+        </p>
+        {% endif %}
+        {% if event.event_description %}
+        <p><strong>Description:</strong> {{ event.event_description }}</p>
+        {% endif %}
+        {% if event.event_category %}
+        <p><strong>Category:</strong> {{ event.event_category }}</p>
+        {% endif %}
+        <p><strong>Points:</strong> {{ event.event_points if event.event_points else 0 }} points</p>
+        {% if event.event_capacity %}
+        <p><strong>Capacity:</strong> {{ event.event_capacity }} participants</p>
+        {% endif %}
+        <p><strong>Created:</strong> 
+            {% set created_date = event.created_date.split('T')[0] if 'T' in event.created_date else event.created_date %}
+            {{ created_date }}
+        </p>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Event Actions</h3>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="{{ url_for('scan_event_attendance', event_id=event.event_id) }}" class="btn btn-primary">
+            📷 Scan QR Code for Attendance
+        </a>
+        {% if event.event_date %}
+        <form method="POST" action="{{ url_for('send_event_reminders', event_id=event.event_id) }}" style="display: inline;">
+            <button type="submit" class="btn btn-secondary" onclick="return confirm('Send reminder emails to all registered users?')">
+                📧 Send Event Reminders
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h3 style="margin: 0;">Attendance Records ({{ attendance|length }})</h3>
+        {% if attendance %}
+        <a href="{{ url_for('export_attendance', event_id=event.event_id) }}" class="btn btn-secondary">
+            📥 Download Excel
+        </a>
+        {% endif %}
+    </div>
+    {% if attendance %}
+    <div class="table-container">
+        <table class="persons-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Points Earned</th>
+                    <th>Attendance Date</th>
+                    <th>Attendance Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ record.user_name }}</strong></td>
+                    <td>{{ record.user_email }}</td>
+                    <td><strong style="color: var(--secondary-color);">{{ record.points_earned if record.points_earned else 0 }}</strong></td>
+                    <td>
+                        {% set att_date = record.attendance_date.split('T')[0] if 'T' in record.attendance_date else record.attendance_date %}
+                        {{ att_date }}
+                    </td>
+                    <td>
+                        {% if 'T' in record.attendance_date %}
+                            {% set att_time = record.attendance_date.split('T')[1].split('.')[0] %}
+                            {{ att_time }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No attendance records yet. Start scanning QR codes to record attendance!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

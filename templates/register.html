@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Register - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card" style="max-width: 800px;">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='yepid.png') }}" alt="SAN AGUSTIN YEP ID Logo" class="card-logo">
+        </div>
+        <h2>System Registration</h2>
+        <p class="subtitle">Fill out the form below to register in the system and receive your QR code via email</p>
+        
+        <form method="POST" action="{{ url_for('register') }}" id="registrationForm">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3>Personal Information</h3>
+                
+                <div class="form-group">
+                    <label for="name">Full Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required autofocus placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="street">Street</label>
+                        <input type="text" id="street" name="street" placeholder="Enter your street address">
+                    </div>
+                    <div class="form-group">
+                        <label for="zone">Zone</label>
+                        <input type="text" id="zone" name="zone" placeholder="Enter your zone">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sex">Sex <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="sex" value="M" required> Male
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="sex" value="F" required> Female
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="birthdate">Birthdate <span class="required">*</span></label>
+                        <input type="date" id="birthdate" name="birthdate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email address">
+                    <small>Your QR code will be sent to this email</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Contact Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your contact number">
+                </div>
+                
+                <div class="form-group">
+                    <label for="civil_status">Civil Status</label>
+                    <select id="civil_status" name="civil_status">
+                        <option value="">Select Civil Status</option>
+                        <option value="Single">Single</option>
+                        <option value="Married">Married</option>
+                        <option value="Divorced">Divorced</option>
+                        <option value="Widowed">Widowed</option>
+                        <option value="Separated">Separated</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Youth Information Section -->
+            <div class="form-section">
+                <h3>Youth Information</h3>
+                
+                <div class="form-group">
+                    <label for="youth_age_group">Youth Age Group</label>
+                    <select id="youth_age_group" name="youth_age_group">
+                        <option value="">Select Age Group</option>
+                        <option value="Child (15-17 y/o)">Child (15-17 y/o)</option>
+                        <option value="Core Youth (18-24 y/o)">Core Youth (18-24 y/o)</option>
+                        <option value="Young Adult (25-30 y/o)">Young Adult (25-30 y/o)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="youth_classification">Youth Classification</label>
+                    <select id="youth_classification" name="youth_classification">
+                        <option value="">Select Classification</option>
+                        <option value="In School Youth">In School Youth</option>
+                        <option value="Out of School Youth">Out of School Youth</option>
+                        <option value="Working Youth">Working Youth</option>
+                        <option value="Youth with Specific Needs">Youth with Specific Needs</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="specificNeedsGroup" style="display: none;">
+                    <label for="specific_needs_type">If you're a youth with specific needs, what kind?</label>
+                    <select id="specific_needs_type" name="specific_needs_type">
+                        <option value="">Select Type</option>
+                        <option value="PWD">PWD</option>
+                        <option value="Children in conflict with law">Children in conflict with law</option>
+                        <option value="Indigenous People">Indigenous People</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Education and Work Section -->
+            <div class="form-section">
+                <h3>Education and Work</h3>
+                
+                <div class="form-group">
+                    <label for="educational_background">Educational Background</label>
+                    <select id="educational_background" name="educational_background">
+                        <option value="">Select Educational Background</option>
+                        <option value="Elementary Level">Elementary Level</option>
+                        <option value="Elementary Graduate">Elementary Graduate</option>
+                        <option value="High School Level">High School Level</option>
+                        <option value="High School Graduate">High School Graduate</option>
+                        <option value="Vocational Graduate">Vocational Graduate</option>
+                        <option value="College Level">College Level</option>
+                        <option value="College Graduate">College Graduate</option>
+                        <option value="Masters Level">Masters Level</option>
+                        <option value="Masters Graduate">Masters Graduate</option>
+                        <option value="Doctorate Level">Doctorate Level</option>
+                        <option value="Doctorate Graduate">Doctorate Graduate</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="educationalBackgroundOtherGroup" style="display: none;">
+                    <label for="educational_background_other">Please specify other educational background</label>
+                    <input type="text" id="educational_background_other" name="educational_background_other" placeholder="Enter your educational background">
+                </div>
+                
+                <div class="form-group">
+                    <label for="work_status">Work Status</label>
+                    <select id="work_status" name="work_status">
+                        <option value="">Select Work Status</option>
+                        <option value="Employed">Employed</option>
+                        <option value="Unemployed">Unemployed</option>
+                        <option value="Self-Employed">Self-Employed</option>
+                        <option value="Currently Looking for a Job">Currently Looking for a Job</option>
+                        <option value="Not Interested Looking for a Job">Not Interested Looking for a Job</option>
+                        <option value="Not Applicable (e.g., Student)">Not Applicable (e.g., Student)</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="workStatusOtherGroup" style="display: none;">
+                    <label for="work_status_other">Please specify other work status</label>
+                    <input type="text" id="work_status_other" name="work_status_other" placeholder="Enter your work status">
+                </div>
+            </div>
+            
+            <!-- Voter Information Section -->
+            <div class="form-section">
+                <h3>Voter Information</h3>
+                
+                <div class="form-group">
+                    <label for="sk_voter_registered">Are you a registered SK voter?</label>
+                    <select id="sk_voter_registered" name="sk_voter_registered">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sk_voted_last_election">Did you vote last SK election?</label>
+                    <select id="sk_voted_last_election" name="sk_voted_last_election">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="national_voter_registered">Are you a registered national voter?</label>
+                    <select id="national_voter_registered" name="national_voter_registered">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- KK Assembly Section -->
+            <div class="form-section">
+                <h3>KK Assembly Participation</h3>
+                
+                <div class="form-group">
+                    <label for="attended_kk_assembly">Have you already attended a KK assembly?</label>
+                    <select id="attended_kk_assembly" name="attended_kk_assembly">
+                        <option value="">Select</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="kkAssemblyTimesGroup" style="display: none;">
+                    <label for="kk_assembly_times">If yes, how many times?</label>
+                    <select id="kk_assembly_times" name="kk_assembly_times">
+                        <option value="">Select</option>
+                        <option value="1-2">1-2</option>
+                        <option value="3-4">3-4</option>
+                        <option value="5 and above">5 and above</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="kkAssemblyNoReasonGroup" style="display: none;">
+                    <label for="kk_assembly_no_reason">If no, why?</label>
+                    <select id="kk_assembly_no_reason" name="kk_assembly_no_reason">
+                        <option value="">Select</option>
+                        <option value="There was no KK assembly Meeting">There was no KK assembly Meeting</option>
+                        <option value="Not Interested to attend">Not Interested to attend</option>
+                        <option value="Not Applicable">Not Applicable</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </form>
+    </div>
+</div>
+
+<script>
+// Show/hide specific needs field based on youth classification
+document.getElementById('youth_classification').addEventListener('change', function() {
+    const specificNeedsGroup = document.getElementById('specificNeedsGroup');
+    if (this.value === 'Youth with Specific Needs') {
+        specificNeedsGroup.style.display = 'block';
+    } else {
+        specificNeedsGroup.style.display = 'none';
+        document.getElementById('specific_needs_type').value = '';
+    }
+});
+
+// Show/hide KK assembly fields based on attendance
+document.getElementById('attended_kk_assembly').addEventListener('change', function() {
+    const kkAssemblyTimesGroup = document.getElementById('kkAssemblyTimesGroup');
+    const kkAssemblyNoReasonGroup = document.getElementById('kkAssemblyNoReasonGroup');
+    
+    if (this.value === 'Yes') {
+        kkAssemblyTimesGroup.style.display = 'block';
+        kkAssemblyNoReasonGroup.style.display = 'none';
+        document.getElementById('kk_assembly_no_reason').value = '';
+    } else if (this.value === 'No') {
+        kkAssemblyTimesGroup.style.display = 'none';
+        kkAssemblyNoReasonGroup.style.display = 'block';
+        document.getElementById('kk_assembly_times').value = '';
+    } else {
+        kkAssemblyTimesGroup.style.display = 'none';
+        kkAssemblyNoReasonGroup.style.display = 'none';
+        document.getElementById('kk_assembly_times').value = '';
+        document.getElementById('kk_assembly_no_reason').value = '';
+    }
+});
+
+// Show/hide "Other" text input for Educational Background
+document.getElementById('educational_background').addEventListener('change', function() {
+    const otherGroup = document.getElementById('educationalBackgroundOtherGroup');
+    if (this.value === 'Other') {
+        otherGroup.style.display = 'block';
+    } else {
+        otherGroup.style.display = 'none';
+        document.getElementById('educational_background_other').value = '';
+    }
+});
+
+// Show/hide "Other" text input for Work Status
+document.getElementById('work_status').addEventListener('change', function() {
+    const otherGroup = document.getElementById('workStatusOtherGroup');
+    if (this.value === 'Other') {
+        otherGroup.style.display = 'block';
+    } else {
+        otherGroup.style.display = 'none';
+        document.getElementById('work_status_other').value = '';
+    }
+});
+</script>
+
+<style>
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.form-section h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+}
+
+.radio-group {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.radio-label input[type="radio"] {
+    width: auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.required {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

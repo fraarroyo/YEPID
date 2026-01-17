@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Successful - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="success-container">
+    <div class="success-card">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='yepid.png') }}" alt="SAN AGUSTIN YEP ID Logo" class="card-logo">
+        </div>
+        <div class="success-icon">✓</div>
+        <h2>Registration Successful!</h2>
+        <p class="success-message">
+            Thank you for registering in the SAN AGUSTIN YEP ID system.
+        </p>
+        <p>
+            Your unique QR code has been generated and sent to <strong>{{ email }}</strong>.
+        </p>
+        <p class="info-text">
+            Please check your email inbox (and spam folder) to receive your QR code.<br>
+            This QR code can be used for identification and verification purposes.
+        </p>
+        <div class="success-actions">
+            <a href="{{ url_for('consent') }}" class="btn btn-primary">Register Another</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

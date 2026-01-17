@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Search - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Advanced Search</h2>
+    <p>Search across users, events, and attendance records</p>
+</div>
+
+<div class="card">
+    <h3>Search</h3>
+    <form method="GET" action="{{ url_for('advanced_search') }}" class="search-form">
+        <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+                <input type="text" name="q" value="{{ query }}" placeholder="Enter search term..." required>
+            </div>
+            <div class="form-group">
+                <select name="type">
+                    <option value="all" {% if search_type == 'all' %}selected{% endif %}>All</option>
+                    <option value="users" {% if search_type == 'users' %}selected{% endif %}>Users</option>
+                    <option value="events" {% if search_type == 'events' %}selected{% endif %}>Events</option>
+                    <option value="attendance" {% if search_type == 'attendance' %}selected{% endif %}>Attendance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">🔍 Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% if query %}
+<div class="card">
+    <h3>Search Results for "{{ query }}"</h3>
+    
+    {% if search_type in ['all', 'users'] %}
+    <div style="margin-bottom: 2rem;">
+        <h4>Users ({{ results.users|length }})</h4>
+        {% if results.users %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Zone</th>
+                        <th>Registration Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in results.users %}
+                    <tr>
+                        <td><strong>{{ user.name }}</strong></td>
+                        <td>{{ user.id if user.id else 'N/A' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.zone if user.zone else 'N/A' }}</td>
+                        <td>{{ user.registration_date.split('T')[0] if 'T' in user.registration_date else user.registration_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No users found.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if search_type in ['all', 'events'] %}
+    <div style="margin-bottom: 2rem;">
+        <h4>Events ({{ results.events|length }})</h4>
+        {% if results.events %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Points</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in results.events %}
+                    <tr>
+                        <td><strong>{{ event.event_name }}</strong></td>
+                        <td>{{ event.event_category if event.event_category else 'N/A' }}</td>
+                        <td>{{ event.event_date if event.event_date else 'N/A' }}</td>
+                        <td><strong style="color: var(--secondary-color);">{{ event.event_points if event.event_points else 0 }}</strong></td>
+                        <td>{{ event.event_year }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No events found.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if search_type in ['all', 'attendance'] %}
+    <div>
+        <h4>Attendance Records ({{ results.attendance|length }})</h4>
+        {% if results.attendance %}
+        <div class="table-container">
+            <table class="persons-table">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Event Name</th>
+                        <th>Points Earned</th>
+                        <th>Attendance Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in results.attendance %}
+                    <tr>
+                        <td><strong>{{ record.user_name }}</strong></td>
+                        <td>{{ record.event_name }}</td>
+                        <td><strong style="color: var(--secondary-color);">{{ record.points_earned if record.points_earned else 0 }}</strong></td>
+                        <td>{{ record.attendance_date.split('T')[0] if 'T' in record.attendance_date else record.attendance_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p>No attendance records found.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+

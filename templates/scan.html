@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Scan QR Code - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Scan QR Code</h2>
+    <p>Use your device camera to scan a QR code</p>
+</div>
+
+<div class="card">
+    <div id="reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+    <div id="scan-result" style="display: none; margin-top: 1rem;">
+        <div class="card scan-result">
+            <h3>Scanned Result</h3>
+            <div class="scanned-data">
+                <p><strong>Decoded Data:</strong></p>
+                <div class="data-box">
+                    <code id="scanned-data-content"></code>
+                </div>
+                <button onclick="resetScanner()" class="btn btn-primary" style="margin-top: 1rem;">Scan Another</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+let html5QrcodeScanner = null;
+let isScanning = false;
+
+function onScanSuccess(decodedText, decodedResult) {
+    console.log("QR Code scanned:", decodedText);
+    
+    // Stop scanning
+    if (html5QrcodeScanner && isScanning) {
+        html5QrcodeScanner.stop().then(() => {
+            html5QrcodeScanner.clear();
+            isScanning = false;
+        }).catch(err => {
+            console.error("Error stopping scanner:", err);
+        });
+    }
+    
+    // Display result briefly
+    document.getElementById('scanned-data-content').textContent = decodedText;
+    document.getElementById('scan-result').style.display = 'block';
+    document.getElementById('reader').style.display = 'none';
+    
+    // Automatically restart scanner after 2 seconds
+    setTimeout(() => {
+        document.getElementById('scan-result').style.display = 'none';
+        document.getElementById('reader').style.display = 'block';
+        startScanner();
+    }, 2000);
+}
+
+function onScanFailure(error) {
+    // Ignore scan errors - just keep scanning
+    // Uncomment for debugging:
+    // console.log("Scan error (ignored):", error);
+}
+
+function resetScanner() {
+    document.getElementById('scan-result').style.display = 'none';
+    document.getElementById('reader').style.display = 'block';
+    startScanner();
+}
+
+async function startScanner() {
+    if (isScanning) {
+        return;
+    }
+    
+    try {
+        html5QrcodeScanner = new Html5Qrcode("reader");
+        
+        // Try to get available cameras
+        const devices = await Html5Qrcode.getCameras();
+        console.log("Available cameras:", devices);
+        
+        let cameraId = null;
+        // Prefer back camera
+        for (let device of devices) {
+            if (device.label.toLowerCase().includes('back') || 
+                device.label.toLowerCase().includes('rear') ||
+                device.label.toLowerCase().includes('environment')) {
+                cameraId = device.id;
+                break;
+            }
+        }
+        // If no back camera found, use first available
+        if (!cameraId && devices.length > 0) {
+            cameraId = devices[0].id;
+        }
+        
+        const config = {
+            fps: 10,
+            qrbox: function(viewfinderWidth, viewfinderHeight) {
+                // Use 80% of the smaller dimension
+                let minEdgePercentage = 0.8;
+                let minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+                let qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+                return {
+                    width: qrboxSize,
+                    height: qrboxSize
+                };
+            },
+            aspectRatio: 1.0,
+            disableFlip: false
+        };
+        
+        if (cameraId) {
+            await html5QrcodeScanner.start(
+                cameraId,
+                config,
+                onScanSuccess,
+                onScanFailure
+            );
+        } else {
+            // Fallback to facingMode
+            await html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            );
+        }
+        
+        isScanning = true;
+        console.log("Scanner started successfully");
+    } catch (err) {
+        console.error("Unable to start scanning", err);
+        let errorMsg = "Unable to access camera. ";
+        if (err.name === 'NotAllowedError') {
+            errorMsg += "Please grant camera permissions and refresh the page.";
+        } else if (err.name === 'NotFoundError') {
+            errorMsg += "No camera found on this device.";
+        } else {
+            errorMsg += "Error: " + err.message;
+        }
+        alert(errorMsg);
+        document.getElementById('reader').innerHTML = 
+            '<div style="text-align: center; padding: 2rem; color: #721c24;">' +
+            '<p><strong>Camera Error</strong></p>' +
+            '<p>' + errorMsg + '</p>' +
+            '<button onclick="startScanner()" class="btn btn-primary">Retry</button>' +
+            '</div>';
+    }
+}
+
+// Start scanner when page loads
+window.addEventListener('load', () => {
+    setTimeout(startScanner, 500); // Small delay to ensure DOM is ready
+});
+</script>
+{% endblock %}

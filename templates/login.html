@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='yepid.png') }}" alt="SAN AGUSTIN YEP ID Logo" class="card-logo">
+        </div>
+        <h2>Admin Login</h2>
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <div class="login-info">
+            <p><small>This can be only accessed by the admin</small></p>
+            <p style="margin-top: 1rem;"><a href="{{ url_for('register') }}">Back to Registration Form</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

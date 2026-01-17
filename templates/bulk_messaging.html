@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Messaging - SAN AGUSTIN YEP ID{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Bulk Messaging</h2>
+    <p>Send announcements and messages to users</p>
+</div>
+
+<div class="card">
+    <h3>Compose Message</h3>
+    <form method="POST" action="{{ url_for('bulk_messaging') }}" class="event-form">
+        <div class="form-group">
+            <label for="message_type">Message Type</label>
+            <select id="message_type" name="message_type" required>
+                <option value="announcement">Announcement</option>
+                <option value="reminder">Reminder</option>
+                <option value="update">Update</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="subject">Subject *</label>
+            <input type="text" id="subject" name="subject" required placeholder="Message subject">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" rows="8" required placeholder="Enter your message here..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="recipient_filter">Recipient Filter</label>
+            <select id="recipient_filter" name="recipient_filter" onchange="toggleFilterValue()">
+                <option value="all">All Users</option>
+                <option value="zone">By Zone</option>
+                <option value="age_group">By Age Group</option>
+                <option value="classification">By Classification</option>
+            </select>
+        </div>
+        
+        <div class="form-group" id="filterValueGroup" style="display: none;">
+            <label for="filter_value">Filter Value</label>
+            <select id="filter_value" name="filter_value">
+                <option value="">Select...</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" onclick="return confirm('Are you sure you want to send this message to all selected recipients?')">
+                📧 Send Message
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+const zones = {{ zones | tojson }};
+const ageGroups = {{ age_groups | tojson }};
+const classifications = {{ classifications | tojson }};
+
+function toggleFilterValue() {
+    const filter = document.getElementById('recipient_filter').value;
+    const filterValueGroup = document.getElementById('filterValueGroup');
+    const filterValue = document.getElementById('filter_value');
+    
+    if (filter === 'all') {
+        filterValueGroup.style.display = 'none';
+    } else {
+        filterValueGroup.style.display = 'block';
+        filterValue.innerHTML = '<option value="">Select...</option>';
+        
+        let options = [];
+        if (filter === 'zone') {
+            options = zones;
+        } else if (filter === 'age_group') {
+            options = ageGroups;
+        } else if (filter === 'classification') {
+            options = classifications;
+        }
+        
+        options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            filterValue.appendChild(opt);
+        });
+    }
+}
+</script>
+{% endblock %}
+
